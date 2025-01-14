@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 from app import env
 from app.models.user import User
 from app.schemas.user import User as UserSchema
@@ -7,24 +7,41 @@ from app.services.password.hash import hash_password
 import re
 
 def register_user(db: Session, user: UserSchema):
+    """
+    Registers a new user in the database.
+
+    Args:
+        db (Session): SQLAlchemy database session.
+        user (UserSchema): User schema containing the user details.
+
+    Raises:
+        HTTPException: If any validation fails, such as duplicate email or phone number,
+                       invalid age, invalid email format, invalid password format, or
+                       missing required fields.
+
+    Returns:
+        User: The newly created User object.
+        TODO: Return a jwt barear and login to user account.
+    """
+
     # Check if email or phone number is already registered
     if db.query(User).filter(User.email == user.email).first():
-        raise HTTPException(status_code=400, detail="Email already registered")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered")
     
     if db.query(User).filter(User.phone_number == user.phone_number).first():
-        raise HTTPException(status_code=400, detail="Phone number already registered")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Phone number already registered")
     
     # Check if user is old enough
     if user.age < env.MINIMUM_AGE:
-        raise HTTPException(status_code=400, detail=f"User must be at least {env.MINIMUM_AGE} years old")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"User must be at least {env.MINIMUM_AGE} years old")
     
     emailregex = r"/[A-Z0-9._%+-]+@[A-Z0-9-]+.+.[A-Z]{2,4}/igm"
     if re.match(emailregex, user.email):
-        raise HTTPException(status_code=400, detail="Invalid email")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid email")
     
     passwordregex = r"/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$@$!%*?&_])[A-Za-z\d$@$!%*?&_]{minlength,maxlength}$/"
     if re.match(passwordregex, user.password):
-        raise HTTPException(status_code=400, detail="Invalid password")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid password")
     
     # Validate that all required fields are filled
     required_fields = [

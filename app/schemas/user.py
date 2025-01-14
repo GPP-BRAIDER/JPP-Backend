@@ -14,7 +14,7 @@ class User(BaseModel):
     phone_number : str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class ShowUser(BaseModel):
     first_name: str
@@ -29,4 +29,4 @@ class ShowUser(BaseModel):
     phone_number : str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
