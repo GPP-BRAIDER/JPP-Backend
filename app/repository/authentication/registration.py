@@ -4,6 +4,7 @@ from app import env
 from app.models.user import User
 from app.schemas.user import User as UserSchema
 from app.services.password.hash import hash_password
+from app.services.token import create_access_token
 import re
 
 def register_user(db: Session, user: UserSchema):
@@ -20,8 +21,8 @@ def register_user(db: Session, user: UserSchema):
                        missing required fields.
 
     Returns:
-        User: The newly created User object.
-        TODO: Return a jwt barear and login to user account.
+        access_token: Return a jwt barear and login to user account.
+        token_type: Return type of token.
     """
 
     # Check if email or phone number is already registered
@@ -92,4 +93,8 @@ def register_user(db: Session, user: UserSchema):
     db.commit()
     db.refresh(new_user)
 
-    return new_user
+    # Create a JWT access token for the authenticated user.
+    access_token = create_access_token(data={"sub": new_user.email})
+
+    # Return the generated access token and its type (bearer).
+    return {"access_token": access_token, "token_type": "bearer"}

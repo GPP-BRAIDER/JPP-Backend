@@ -8,8 +8,8 @@ router = APIRouter(
     tags=["Authentication"]
 )
 
-@router.post("/register", response_model=user.ShowUser)
-def register(request: user.User, db: Session = Depends(get_db)):
+@router.post("/register")
+async def register(request: user.User, db: Session = Depends(get_db)):
     """
     Register a new user.
     - Accepts user details in the request body.
@@ -20,7 +20,7 @@ def register(request: user.User, db: Session = Depends(get_db)):
         db (Session): A database session provided by FastAPI's dependency injection.
 
     Returns:
-        user.ShowUser: The registered user's details, excluding sensitive information.
+        user.ShowUser: The registered user's generated Json Web Token.
     """
 
     # Passes the database session and user data to the registration logic.

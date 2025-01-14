@@ -11,10 +11,10 @@ router = APIRouter(
 )
 
 @router.post("/login")
-def login(request: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+async def login(request: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     """
     Login endpoint for user authentication.
-    - Accepts OAuth2PasswordRequestForm which contains `username` and `password`.
+    - Accepts OAuth2PasswordRequestForm which contains `username`(email) and `password`.
     - Returns an access token upon successful authentication.
 
     Args:
