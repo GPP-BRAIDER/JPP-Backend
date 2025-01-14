@@ -1,0 +1,3 @@
+SQLALCHEMY_DATABASE_URL = "sqlite:///./app.db"
+
+MINIMUM_AGE = 18
