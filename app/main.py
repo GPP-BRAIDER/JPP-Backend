@@ -5,8 +5,10 @@ from app.routers import test
 
 app = FastAPI()
 
+# Initializing database.
 init_db()
 
+# Routers.
 app.include_router(registration.router)
 app.include_router(login.router)
 app.include_router(test.router)

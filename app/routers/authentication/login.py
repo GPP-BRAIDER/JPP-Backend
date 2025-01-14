@@ -11,14 +11,37 @@ router = APIRouter(
 )
 
 @router.post("/login")
-def login(request:OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+def login(request: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    """
+    Login endpoint for user authentication.
+    - Accepts OAuth2PasswordRequestForm which contains `username` and `password`.
+    - Returns an access token upon successful authentication.
+
+    Args:
+        request (OAuth2PasswordRequestForm): The login form data.
+        db (Session): The database session dependency.
+
+    Returns:
+        dict: A JSON object containing the access token and token type.
+    """
+
+    # Query the database for a user with the provided email (username).
     user = db.query(User).filter(User.email == request.username).first()
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f"Invalid Credentials")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Invalid Credentials"
+        )
+    
+    # Verify the provided password with the hashed password stored in the database.
     if not verify_password(user.password, request.password):
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f"Incorrect password")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Incorrect password"
+        )
 
+    # Create a JWT access token for the authenticated user.
     access_token = create_access_token(data={"sub": user.email})
+
+    # Return the generated access token and its type (bearer).
     return {"access_token": access_token, "token_type": "bearer"}

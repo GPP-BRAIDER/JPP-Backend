@@ -26,22 +26,31 @@ def register_user(db: Session, user: UserSchema):
 
     # Check if email or phone number is already registered
     if db.query(User).filter(User.email == user.email).first():
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                             detail="Email already registered"
+                        )
     
     if db.query(User).filter(User.phone_number == user.phone_number).first():
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Phone number already registered")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                             detail="Phone number already registered"
+                        )
     
     # Check if user is old enough
     if user.age < env.MINIMUM_AGE:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"User must be at least {env.MINIMUM_AGE} years old")
     
+    # Check email and password by regex templates
     emailregex = r"/[A-Z0-9._%+-]+@[A-Z0-9-]+.+.[A-Z]{2,4}/igm"
     if re.match(emailregex, user.email):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid email")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                             detail="Invalid email"
+                        )
     
     passwordregex = r"/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$@$!%*?&_])[A-Za-z\d$@$!%*?&_]{minlength,maxlength}$/"
     if re.match(passwordregex, user.password):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid password")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                             detail="Invalid password"
+                        )
     
     # Validate that all required fields are filled
     required_fields = [
@@ -58,7 +67,9 @@ def register_user(db: Session, user: UserSchema):
     ]
     
     if any(field is None or field == '' for field in required_fields):
-        raise HTTPException(status_code=400, detail="All fields must be filled")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                             detail="All fields must be filled"
+                        )
 
     # Create new user record
     new_user = User(
